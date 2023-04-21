@@ -1,0 +1,131 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: >-
+  Sam-Administracion
+
+Transform:
+- AWS::Serverless-2016-10-31
+
+Parameters:
+  AwsAccessKeyId:
+    Type: String
+    Default: "XXXXXXXXXXXXXXXXXXXX"
+  AwsSecretAccessKey:
+    Type: String
+    Default: "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+  AwsRegion:
+    Type: String
+    Default: "us-east-1"
+  AwsLayerARN:
+    Type: String
+    Default: "arn:aws:lambda:us-east-1:xxxxxxxxxxxx:layer:AWS-Layer:X"
+  DatabaseLayerARN:
+    Type: String
+    Default: "arn:aws:lambda:us-east-1:xxxxxxxxxxxx:layer:Database-Layer:X"
+  UtilLayerARN:
+    Type: String
+    Default: "arn:aws:lambda:us-east-1:xxxxxxxxxxxx:layer:Util-Layer:X"
+
+Globals:
+  Function:
+    Runtime: nodejs16.x
+    Architectures:
+      - x86_64
+    MemorySize: 128
+    Timeout: 180
+    Environment:
+      Variables:
+        AWS_REGION_DB: !Ref AwsRegion
+        AWS_SECRET_KEY_DB: !Ref AwsAccessKeyId
+        AWS_SECRET_ACCESS_KEY_DB: !Ref AwsSecretAccessKey
+        AWS_SECRET_DB: dev-acd-postgres
+        AWS_DB_NAME: DBACD
+    Layers:
+      - !Ref AwsLayerARN
+      - !Ref DatabaseLayerARN
+      - !Ref UtilLayerARN
+
+Resources:
+  PaisesGetAllFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: paises/getall
+      Handler: handler.getPaises
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /administracion/paises
+            Method: GET
+  PaisesGetByFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: paises/getby
+      Handler: handler.getPais
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /administracion/paises/{id}
+            Method: GET
+            
+  SedesGetAllFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: sedes/getall
+      Handler: handler.getSedes
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /administracion/sedes
+            Method: GET
+  SedesGetByFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: sedes/getby
+      Handler: handler.getSede
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /administracion/sedes/{id}
+            Method: GET
+            
+  TipoVisitantesGetAllFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: tipovisitantes/getall
+      Handler: handler.getTipoVisitantes
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /administracion/tipovisitantes
+            Method: GET
+  TipoVisitantesGetByFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: tipovisitantes/getby
+      Handler: handler.getTipoVisitante
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /administracion/tipovisitantes/{id}
+            Method: GET
+  TipoVisitantesCreateFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: tipovisitantes/create
+      Handler: handler.createTipoVisitante
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /administracion/tipovisitantes
+            Method: POST
+
+Outputs:
+  WebEndpoint:
+    Description: "API Gateway endpoint for Prod stage"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
